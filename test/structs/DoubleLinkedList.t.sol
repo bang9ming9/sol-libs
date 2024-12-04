@@ -5,9 +5,9 @@ import {Test, console} from "forge-std/Test.sol";
 import {DoubleLinkedList} from "../../src/structs/DoubleLinkedList.sol";
 
 contract DoubleLinkedListTest is Test {
-    using DoubleLinkedList for DoubleLinkedList.B32List;
+    using DoubleLinkedList for DoubleLinkedList.B32;
 
-    DoubleLinkedList.B32List public list;
+    DoubleLinkedList.B32 public list;
 
     bytes32[] data;
 
@@ -40,7 +40,8 @@ contract DoubleLinkedListTest is Test {
         }
     }
 
-    function testFail_push_zero() public {
+    function test_push_zero() public {
+        vm.expectRevert(DoubleLinkedList.DoubleLinkedListZeroData.selector);
         list.push(0);
     }
 
@@ -121,11 +122,13 @@ contract DoubleLinkedListTest is Test {
         }
     }
 
-    function testFail_insert_zero() public {
+    function test_insert_zero() public {
+        vm.expectRevert(DoubleLinkedList.DoubleLinkedListZeroData.selector);
         list.insert(0, 0);
     }
 
-    function testFail_insert_invalid_prev() public {
+    function test_insert_invalid_prev() public {
+        vm.expectRevert(DoubleLinkedList.DoubleLinkedListInvalidPrevNode.selector);
         list.insert(bytes32(uint256(100)), bytes32(uint256(100)));
     }
 
@@ -199,7 +202,8 @@ contract DoubleLinkedListTest is Test {
         }
     }
 
-    function testFail_remove_zero() public {
+    function test_remove_zero() public {
+        vm.expectRevert(DoubleLinkedList.DoubleLinkedListZeroData.selector);
         list.remove(0);
     }
 
@@ -233,6 +237,21 @@ contract DoubleLinkedListTest is Test {
             assertEq(list.shift(), data[i]);
         }
         assertTrue(list.empty());
-        assertEq(0, list.shift());
+    }
+
+    function test_invalid_index_empty() external {
+        vm.expectRevert(DoubleLinkedList.DoubleLinkedListInvalidIndex.selector);
+        list.at(0);
+    }
+
+    function test_invalid_index() external {
+        list.push(bytes32(uint256(1)));
+        vm.expectRevert(DoubleLinkedList.DoubleLinkedListInvalidIndex.selector);
+        list.at(1);
+    }
+
+    function test_shift_empty() external {
+        vm.expectRevert(DoubleLinkedList.DoubleLinkedListZeroData.selector);
+        list.shift();
     }
 }
